@@ -1,0 +1,225 @@
+This is a youtube guided project by channel called Data Tutorials. It is a combination of of SQL+Tableau. I used postgresql, so queries are according to its format.
+The probelm statements along with SQL queries are as follows:
+
+DASHBOARD 1: SUMMARY
+"In order to monitor and assess our bank's lending activities and performance, we need to create a comprehensive Bank Loan Report. 
+This report aims to provide insights into key loan-related metrics and their changes over time. 
+The report will help us make data-driven decisions, track our loan portfolio's health, and identify trends that can inform our lending strategies.
+
+Key Performance Indicators (KPIs) Requirements:
+1. Total Loan Applications: We need to calculate the total number of loan applications received during a specified period. 
+Additionally, it is essential to monitor the Month-to-Date (MTD) Loan Applications and track changes Month-over-Month (MoM).
+a) Total Loan Applications          
+SELECT COUNT(id) AS Total_Applications FROM bankloan
+ans. 38576
+b) MTD Loan Applications
+SELECT COUNT(id) AS MTD_Total_Applications FROM bankloan
+WHERE EXTRACT (MONTH FROM issue_date) = 12 AND EXTRACT (YEAR FROM issue_date) = 2021
+ans. 4314
+c) PMTD Loan Applications
+SELECT COUNT(id) AS PMTD_Total_Applications FROM bankloan
+WHERE EXTRACT (MONTH FROM issue_date) = 11 AND EXTRACT (YEAR FROM issue_date) = 2021
+ans. 4035
+
+2. Total Funded Amount: Understanding the total amount of funds disbursed as loans is crucial. 
+We also want to keep an eye on the MTD Total Funded Amount and analyse the Month-over-Month (MoM) changes in this metric.
+a) Total Funded Amount
+SELECT SUM(loan_amount) AS Total_Funded_Amount FROM bankloan
+ans. 435757075
+b) MTD Total Funded Amount
+SELECT SUM(loan_amount) AS MTD_Total_Funded_Amount FROM bankloan
+WHERE EXTRACT (MONTH FROM issue_date) = 12 AND EXTRACT (YEAR FROM issue_date) = 2021
+ans.53981425
+c) PMTD Total Funded Amount
+SELECT SUM(loan_amount) AS PMTD_Total_Funded_Amount FROM bankloan
+WHERE EXTRACT (MONTH FROM issue_date) = 11 AND EXTRACT (YEAR FROM issue_date) = 2021
+ans.47754825
+
+3. Total Amount Received: Tracking the total amount received from borrowers is essential for assessing the bank's cash flow and loan repayment. 
+We should analyse the Month-to-Date (MTD) Total Amount Received and observe the Month-over-Month (MoM) changes.
+a) Total Amount Received
+SELECT SUM(total_payment) AS Total_Amount_Collected FROM bankloan
+ans.473070933
+b) MTD Total Amount Received
+SELECT SUM(total_payment) AS Total_Amount_Collected FROM bankloan
+WHERE EXTRACT (MONTH FROM issue_date) = 12 AND EXTRACT (YEAR FROM issue_date) = 2021
+ans.58074380
+c) PMTD Total Amount Received
+SELECT SUM(total_payment) AS Total_Amount_Collected FROM bankloan
+WHERE EXTRACT (MONTH FROM issue_date) = 11 AND EXTRACT (YEAR FROM issue_date) = 2021
+ans. 50132030
+4. Average Interest Rate: Calculating the average interest rate across all loans, MTD, and monitoring the Month-over-Month (MoM) 
+variations in interest rates will provide insights into our lending portfolio's overall cost.
+a) Average Interest Rate
+SELECT ROUND(AVG(int_rate),2)*100 AS Avg_Int_Rate FROM bankloan
+ans.12.05
+b) MTD Average Interest
+SELECT ROUND(AVG(int_rate),2)*100 AS MTD_Avg_Int_Rate FROM bankloan
+WHERE EXTRACT (MONTH FROM issue_date) = 12 AND EXTRACT (YEAR FROM issue_date) = 2021
+ans.12.36
+c) PMTD Average Interest
+SELECT ROUND(AVG(int_rate),2)*100 AS PMTD_Avg_Int_Rate FROM bankloan
+WHERE EXTRACT (MONTH FROM issue_date) = 11 AND EXTRACT (YEAR FROM issue_date) = 2021
+ans.11.94
+
+5. Average Debt-to-Income Ratio (DTI): Evaluating the average DTI for our borrowers helps us gauge their financial health. 
+We need to compute the average DTI for all loans, MTD, and track Month-over-Month (MoM) fluctuations.
+a) Avg DTI
+SELECT ROUND(AVG(dti),2)*100 AS Avg_DTI FROM bankloan
+ans.13.33
+b) MTD Avg DTI
+SELECT ROUND(AVG(dti),2)*100 AS MTD_Avg_DTI FROM bankloan
+WHERE EXTRACT (MONTH FROM issue_date) = 12 AND EXTRACT (YEAR FROM issue_date) = 2021
+ans.13.67
+c) PMTD Avg DTI
+SELECT ROUND(AVG(dti),2)*100 AS PMTD_Avg_DTI FROM bankloan
+WHERE EXTRACT (MONTH FROM issue_date) = 11 AND EXTRACT (YEAR FROM issue_date) = 2021
+ans.13.30
+
+
+Good Loan v Bad Loan KPI’s
+In order to evaluate the performance of our lending activities and assess the quality of our loan portfolio, 
+we need to create a comprehensive report that distinguishes between 'Good Loans' and 'Bad Loans' based on specific loan status criteria
+
+Good Loan KPIs:
+1. Good Loan Application Percentage: We need to calculate the percentage of loan applications classified as 'Good Loans.' This category includes loans with a loan status of 'Fully Paid' and 'Current.'
+SELECT
+    (COUNT(CASE WHEN loan_status = 'Fully Paid' OR loan_status = 'Current' THEN id END) * 100.0) / 
+	COUNT(id) AS Good_Loan_Percentage
+FROM bankloan
+ans.86
+
+2. Good Loan Applications: Identifying the total number of loan applications falling under the 'Good Loan' category, which consists of loans with a loan status of 'Fully Paid' and 'Current.'
+SELECT COUNT(id) AS Good_Loan_Applications FROM bankloan
+WHERE loan_status = 'Fully Paid' OR loan_status = 'Current'
+ans.33243
+
+3. Good Loan Funded Amount: Determining the total amount of funds disbursed as 'Good Loans.' This includes the principal amounts of loans with a loan status of 'Fully Paid' and 'Current.'
+SELECT SUM(loan_amount) AS Good_Loan_Funded_amount FROM bankloan
+WHERE loan_status = 'Fully Paid' OR loan_status = 'Current'
+ans.370224850
+
+4. Good Loan Total Received Amount: Tracking the total amount received from borrowers for 'Good Loans,' which encompasses all payments made on loans with a loan status of 'Fully Paid' and 'Current.'
+SELECT SUM(total_payment) AS Good_Loan_amount_received FROM bankloan
+WHERE loan_status = 'Fully Paid' OR loan_status = 'Current'
+435786170
+
+Bad Loan KPIs:
+1. Bad Loan Application Percentage: Calculating the percentage of loan applications categorized as 'Bad Loans.' This category specifically includes loans with a loan status of 'Charged Off.'
+SELECT
+    (COUNT(CASE WHEN loan_status = 'Charged Off' THEN id END) * 100.0) / 
+	COUNT(id) AS Bad_Loan_Percentage
+FROM bankloan
+ans.13.82
+
+2. Bad Loan Applications: Identifying the total number of loan applications categorized as 'Bad Loans,' which consists of loans with a loan status of 'Charged Off.'
+SELECT COUNT(id) AS Bad_Loan_Applications FROM bankloan
+WHERE loan_status = 'Charged Off'
+ans.5333
+
+3. Bad Loan Funded Amount: Determining the total amount of funds disbursed as 'Bad Loans.' This comprises the principal amounts of loans with a loan status of 'Charged Off.'
+SELECT SUM(loan_amount) AS Bad_Loan_Funded_amount FROM bankloan
+WHERE loan_status = 'Charged Off'
+ans.65532225
+
+4. Bad Loan Total Received Amount: Tracking the total amount received from borrowers for 'Bad Loans,' which includes all payments made on loans with a loan status of 'Charged Off.'
+SELECT SUM(total_payment) AS Bad_Loan_amount_received FROM bankloan
+WHERE loan_status = 'Charged Off'
+ans.37284763
+
+
+Loan Status Grid View
+In order to gain a comprehensive overview of our lending operations and monitor the performance of loans, we aim to create a grid view report categorized by 'Loan Status.' 
+This report will serve as a valuable tool for analysing and understanding the key indicators associated with different loan statuses. 
+By providing insights into metrics such as 'Total Loan Applications,' 'Total Funded Amount,' 'Total Amount Received,' 'Month-to-Date (MTD) Funded Amount,
+' 'MTD Amount Received,' 'Average Interest Rate,' and 'Average Debt-to-Income Ratio (DTI),' this grid view will empower us to make data-driven decisions and assess the health of our loan portfolio.
+
+SELECT
+        loan_status,
+        COUNT(id) AS Total_loan_applications,
+        SUM(total_payment) AS Total_Amount_Received,
+        SUM(loan_amount) AS Total_Funded_Amount,
+        AVG(int_rate * 100) AS Interest_Rate,
+        AVG(dti * 100) AS DTI
+    FROM bankloan
+    GROUP BY loan_status
+
+SELECT 
+	loan_status, 
+	SUM(total_payment) AS MTD_Total_Amount_Received, 
+	SUM(loan_amount) AS MTD_Total_Funded_Amount 
+FROM bankloan
+WHERE EXTRACT (MONTH FROM issue_date) = 12 
+GROUP BY loan_status
+
+
+DASHBOARD 2: BANK LOAN REPORT | OVERVIEW
+In our Bank Loan Report project, we aim to visually represent critical loan-related metrics and trends using a variety of chart types. 
+These charts will provide a clear and insightful view of our lending operations, facilitating data-driven decision-making and enabling us to gain valuable insights into various loan parameters. 
+Below are the specific chart requirements:
+
+1. Monthly Trends by Issue Date (Line Chart):
+SELECT 
+EXTRACT(MONTH FROM issue_date) AS Month_number,	
+TO-CHAR(issue_date,'Month') AS Month_name, 
+	COUNT(id) AS Total_Loan_Applications,
+	SUM(loan_amount) AS Total_Funded_Amount,
+	SUM(total_payment) AS Total_Amount_Received
+FROM bankloan
+GROUP BY EXTRACT(MONTH FROM issue_date), TO-CHAR(issue_date,'Month')
+ORDER BY EXTRACT(MONTH FROM issue_date)
+
+2. Regional Analysis by State (Filled Map):
+SELECT 
+	address_state,
+	COUNT(id) AS Total_Loan_Applications,
+	SUM(loan_amount) AS Total_Funded_Amount,
+	SUM(total_payment) AS Total_Amount_Received
+FROM bankloan
+GROUP BY address_state
+ORDER BY address_state
+
+3. Loan Term Analysis (Donut Chart):
+SELECT 
+  term, 
+	COUNT(id) AS Total_Loan_Applications,
+	SUM(loan_amount) AS Total_Funded_Amount,
+	SUM(total_payment) AS Total_Amount_Received
+FROM bankloan
+GROUP BY term
+ORDER BY term
+
+4. Employee Length Analysis (Bar Chart):
+SELECT 
+	emp_length AS Employee_Length, 
+	COUNT(id) AS Total_Loan_Applications,
+	SUM(loan_amount) AS Total_Funded_Amount,
+	SUM(total_payment) AS Total_Amount_Received
+FROM bankloan
+GROUP BY emp_length
+ORDER BY emp_length
+
+5.Loan Purpose Breakdown (Bar Chart): 
+SELECT 
+	purpose AS PURPOSE, 
+	COUNT(id) AS Total_Loan_Applications,
+	SUM(loan_amount) AS Total_Funded_Amount,
+	SUM(total_payment) AS Total_Amount_Received
+FROM bankloan
+GROUP BY purpose
+ORDER BY purpose
+
+6. Home Ownership Analysis (Tree Map):
+SELECT 
+	home_ownership AS Home_Ownership, 
+	COUNT(id) AS Total_Loan_Applications,
+	SUM(loan_amount) AS Total_Funded_Amount,
+	SUM(total_payment) AS Total_Amount_Received
+FROM bankloan
+GROUP BY home_ownership
+ORDER BY home_ownership
+
+
+DASHBOARD 3: Deatils
+In our Bank Loan Report project, we recognize the need for a comprehensive 'Details Dashboard' that provides a consolidated view of all the essential information within our loan data. 
+This Details Dashboard aims to offer a holistic snapshot of key loan-related metrics and data points, enabling users to access critical information efficiently.
